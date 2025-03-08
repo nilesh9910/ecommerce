@@ -1,6 +1,5 @@
 package com.example.userAuthentication.service;
 
-import com.example.userAuthentication.exceptions.IncorrectUserNameOrPasswordException;
 import com.example.userAuthentication.exceptions.UserAlreadyExistsException;
 import com.example.userAuthentication.models.User;
 

@@ -14,6 +14,7 @@ public class SpringSecurity {
         httpSecurity.cors(cors->cors.disable());
         httpSecurity.authorizeHttpRequests(req-> {
             req.requestMatchers("/auth/signin").permitAll()
+                    .requestMatchers("/auth/signup").permitAll()
                     .requestMatchers("/auth/validateToken").permitAll()
                     .anyRequest().authenticated();
         });

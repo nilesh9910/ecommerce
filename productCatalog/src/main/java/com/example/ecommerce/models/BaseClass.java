@@ -22,4 +22,11 @@ public class BaseClass {
     Date createdAt;
     @UpdateTimestamp
     Date UpdatedAt;
+
+    public BaseClass() {
+    }
+
+    public BaseClass(Long id) {
+        this.id = id;
+    }
 }

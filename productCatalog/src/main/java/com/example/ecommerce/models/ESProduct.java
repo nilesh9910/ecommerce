@@ -17,4 +17,12 @@ public class ESProduct {
     String name;
     String description;
 
+    public ESProduct() {
+    }
+
+    public ESProduct(Long id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
 }
