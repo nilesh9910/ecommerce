@@ -15,4 +15,13 @@ public class Category extends BaseClass{
     String description;
     @OneToMany(mappedBy = "category")
     List<Product> products;
+
+    public Category() {
+    }
+
+    public Category(Long id, String name, String description) {
+        super(id);
+        this.name = name;
+        this.description = description;
+    }
 }

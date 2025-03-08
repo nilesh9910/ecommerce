@@ -1,17 +1,18 @@
 package com.example.userAuthentication.service;
 
-import com.example.userAuthentication.exceptions.IncorrectUserNameOrPasswordException;
+import com.example.userAuthentication.dtos.EmailDTO;
 import com.example.userAuthentication.exceptions.UserAlreadyExistsException;
 import com.example.userAuthentication.models.Role;
 import com.example.userAuthentication.models.User;
 import com.example.userAuthentication.repos.UserRepo;
 import com.example.userAuthentication.utils.JwtUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -28,6 +29,12 @@ public class AuthService implements IAuthService{
     @Autowired
     JwtUtil jwtUtil;
 
+    @Autowired
+    KafkaProducer kafkaProducer;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
 
     public User signUp(String email, String password)  throws  UserAlreadyExistsException{
         Optional<User> optionalUser = userRepo.findByEmail(email);
@@ -36,7 +43,18 @@ public class AuthService implements IAuthService{
             newUser.setEmail(email);
             newUser.setPassword(passwordEncoder.encode(password));
             newUser.getRoles().add(Role.USER);
-            return userRepo.save(newUser);
+            User savedUser = userRepo.save(newUser);
+            try {
+                EmailDTO emailDTO = new EmailDTO();
+                emailDTO.setTo(email);
+                emailDTO.setSubject("Welcome to Ecommerce");
+                emailDTO.setBody("Happy to have you onboard");
+                kafkaProducer.sendMessage("sendEmail", objectMapper.writeValueAsString(emailDTO));
+            }
+            catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+            return savedUser;
         }
         else throw new UserAlreadyExistsException("User Already exists. Please login");
     }
