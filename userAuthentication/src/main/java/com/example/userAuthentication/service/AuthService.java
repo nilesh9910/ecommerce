@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,17 +45,18 @@ public class AuthService implements IAuthService{
             newUser.setEmail(email);
             newUser.setPassword(passwordEncoder.encode(password));
             newUser.getRoles().add(Role.USER);
+            newUser.getRoles().add(Role.ADMIN);
             User savedUser = userRepo.save(newUser);
-            try {
-                EmailDTO emailDTO = new EmailDTO();
-                emailDTO.setTo(email);
-                emailDTO.setSubject("Welcome to Ecommerce");
-                emailDTO.setBody("Happy to have you onboard");
-                kafkaProducer.sendMessage("sendEmail", objectMapper.writeValueAsString(emailDTO));
-            }
-            catch (JsonProcessingException ex) {
-                throw new RuntimeException(ex);
-            }
+//            try {
+//                EmailDTO emailDTO = new EmailDTO();
+//                emailDTO.setTo(email);
+//                emailDTO.setSubject("Welcome to Ecommerce");
+//                emailDTO.setBody("Happy to have you onboard");
+//                kafkaProducer.sendMessage("sendEmail", objectMapper.writeValueAsString(emailDTO));
+//            }
+//            catch (JsonProcessingException ex) {
+//                throw new RuntimeException(ex);
+//            }
             return savedUser;
         }
         else throw new UserAlreadyExistsException("User Already exists. Please login");
@@ -76,5 +79,20 @@ public class AuthService implements IAuthService{
             System.out.println(e.getMessage());
             return false;
         }
+    }
+    public List<Role> getRoles(String token) {
+        try {
+            if(validateToken(token)) {
+                String username = jwtUtil.extractUsername(token);
+                Optional<User> optionalUser = userRepo.findByEmail(username);
+                if(optionalUser.isEmpty()) return new ArrayList<>();
+                User user = optionalUser.get();
+                return new ArrayList<>(user.getRoles());
+            }
+        }
+        catch(Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

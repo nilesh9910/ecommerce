@@ -16,6 +16,7 @@ public class SpringSecurity {
             req.requestMatchers("/auth/signin").permitAll()
                     .requestMatchers("/auth/signup").permitAll()
                     .requestMatchers("/auth/validateToken").permitAll()
+                    .requestMatchers("/auth/getRoles").permitAll()
                     .anyRequest().authenticated();
         });
         return httpSecurity.build();

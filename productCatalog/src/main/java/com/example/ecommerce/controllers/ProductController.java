@@ -3,6 +3,7 @@ package com.example.ecommerce.controllers;
 import com.example.ecommerce.dtos.CategoryDTO;
 import com.example.ecommerce.dtos.ProductDTO;
 import com.example.ecommerce.exceptions.ProductNotFoundException;
+import com.example.ecommerce.exceptions.UnauthourisedExcepiton;
 import com.example.ecommerce.models.Category;
 import com.example.ecommerce.models.ESProduct;
 import com.example.ecommerce.models.Product;
@@ -32,7 +33,7 @@ public class ProductController {
     }
 
     @PutMapping
-    ProductDTO updateProduct(@RequestBody ProductDTO productDTO) {
+    ProductDTO updateProduct(@RequestBody ProductDTO productDTO) throws UnauthourisedExcepiton {
         Product product = from(productDTO);
         Product updatedProduct = productService.updateProduct(product);
         if(updatedProduct==null) {
@@ -42,7 +43,7 @@ public class ProductController {
     }
 
     @PostMapping
-    ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
+    ProductDTO createProduct(@RequestBody ProductDTO productDTO) throws UnauthourisedExcepiton{
         Product product = from(productDTO);
         Product response = productService.createProduct(product);
         return from(response);

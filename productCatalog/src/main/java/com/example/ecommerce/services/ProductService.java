@@ -5,12 +5,15 @@ import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.example.ecommerce.exceptions.UnauthourisedExcepiton;
 import com.example.ecommerce.models.ESProduct;
 import com.example.ecommerce.models.Product;
+import com.example.ecommerce.models.Role;
 import com.example.ecommerce.repos.ESProductRepo;
 import com.example.ecommerce.repos.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,11 +34,16 @@ public class ProductService implements IProductService{
     @Autowired
     private ElasticsearchClient elasticsearchClient;
 
+    @Autowired
+    private UserService userService;
+
     public List<Product> getAllProducts() {
         return productRepo.findAll();
     }
 
-    public Product createProduct(Product product) {
+    public Product createProduct(Product product) throws UnauthourisedExcepiton{
+        List<String> roles = userService.getRolesFromContext();
+        if(!roles.contains(Role.ADMIN.name())) throw new UnauthourisedExcepiton("User is not authorized to perform this operation");
         Product savedProduct = productRepo.save(product);
         ESProduct esProduct = new ESProduct();
         esProduct.setId(savedProduct.getId());
@@ -45,7 +53,9 @@ public class ProductService implements IProductService{
         return savedProduct;
 
     }
-    public Product updateProduct(Product product) {
+    public Product updateProduct(Product product)  throws UnauthourisedExcepiton{
+        List<String> roles = userService.getRolesFromContext();
+        if(!roles.contains(Role.ADMIN.name())) throw new UnauthourisedExcepiton("User is not authorized to perform this operation");
         Optional<Product> optionalProduct = productRepo.findById(product.getId());
         if(optionalProduct.isEmpty()) {
             return null;

@@ -5,6 +5,8 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -15,6 +17,8 @@ public class Product extends BaseClass {
     String imgUrl;
     @ManyToOne
     Category category;
+    Boolean adminRequired;
+
 
     public Product() {
     }

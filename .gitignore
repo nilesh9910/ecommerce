@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+./EmailService/src/main/java/com/example/EmailService/consumer/SendEmailEventConsumer.java
